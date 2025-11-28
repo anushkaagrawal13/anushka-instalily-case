@@ -1,4 +1,5 @@
 // frontend/src/utils/api.js
+
 export async function sendChatMessage(message) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat`, {
     method: "POST",

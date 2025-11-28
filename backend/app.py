@@ -1,30 +1,18 @@
 # app.py
 
-import os
-import uuid
-import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from agents import plan_and_execute_agent  
 import logging
 from agent_manager import agent_manager
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/chat": {
-        "origins": ["chrome-extension://*", "http://localhost:3000"],  # Add chrome-extension
-        "methods": ["POST"],
-        "allow_headers": ["Content-Type"]
-    }
-})
-
-# In-memory session store (for testing purposes)
-sessions = {}
+CORS(app)
 
 @app.route('/chat', methods=['POST'])
 def chat():
     """
-    The main endpoint for your chatbot.
+    main chatbot endpoint. 
+    
     Expects JSON: {"message": "<user's question>", "session_id": "<optional>"}
     Returns JSON: {"response": "<chatbot answer>", "session_id": "<returned or existing>"}
     """
