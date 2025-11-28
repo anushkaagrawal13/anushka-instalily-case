@@ -1,0 +1,152 @@
+# app.py
+import os
+import logging
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from agent_manager import agent_manager
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("logs/flask.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Configure CORS
+CORS(app, resources={
+    r"/chat": {
+        "origins": ["chrome-extension://*", "http://localhost:3000", "http://localhost:3001"],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    },
+    r"/health": {
+        "origins": "*",
+        "methods": ["GET"]
+    }
+})
+
+# In-memory session store (for testing purposes)
+sessions = {}
+
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint"""
+    return jsonify({
+        "status": "healthy",
+        "service": "PartSelect Chat Agent",
+        "ai_provider": "Google Gemini",
+        "version": "1.0.0"
+    })
+
+
+@app.route('/chat', methods=['POST', 'OPTIONS'])
+def chat():
+    """
+    Main chat endpoint for the chatbot.
+    Expects JSON: {"message": "<user's question>", "session_id": "<optional>"}
+    Returns JSON: {"response": "<chatbot answer>", "session_id": "<returned or existing>"}
+    """
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "ok"}), 200
+    
+    try:
+        logger.info("📥 Received chat request")
+        data = request.get_json()
+        logger.debug(f"Request data: {data}")
+        
+        # Validate request
+        if not data:
+            logger.warning("No JSON data in request")
+            return jsonify({"response": "Invalid request format"}), 400
+        
+        user_query = data.get('message', '').strip()
+        if not user_query:
+            logger.warning("No query provided in request")
+            return jsonify({"response": "No query provided"}), 400
+        
+        # Get or create session
+        session_id = data.get('session_id', 'default_session')
+        session_data = sessions.get(session_id, {})
+        
+        # Get response from agent using Gemini
+        logger.info(f"🤖 Processing query with Gemini: {user_query}")
+        response_data = agent_manager.handle_query(user_query, session_data)
+        
+        # Update session
+        sessions[session_id] = session_data
+        
+        # Log the actual response being sent
+        logger.info("📤 Sending to frontend: %s", str(response_data)[:200])
+        
+        # Ensure we're sending a properly formatted response
+        if isinstance(response_data, dict):
+            # Make sure we have the 'response' key
+            if 'response' not in response_data:
+                response_data['response'] = str(response_data)
+            response_data['session_id'] = session_id
+            return jsonify(response_data)
+        else:
+            # If response_data is not a dict, wrap it
+            return jsonify({
+                "response": str(response_data),
+                "session_id": session_id
+            })
+    
+    except Exception as e:
+        logger.exception("❌ Error in chat endpoint")
+        error_msg = str(e)
+        logger.error(f"Sending error response: {error_msg}")
+        return jsonify({
+            "response": f"I apologize, but I encountered an error processing your request. Please try again.",
+            "error_details": error_msg if app.debug else None
+        }), 500
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({
+        "error": "Endpoint not found",
+        "message": "Available endpoints: /health (GET), /chat (POST)"
+    }), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    logger.exception("Internal server error")
+    return jsonify({
+        "error": "Internal server error",
+        "message": "Please check the server logs for details"
+    }), 500
+
+
+if __name__ == '__main__':
+    # Create logs directory if it doesn't exist
+    os.makedirs('logs', exist_ok=True)
+    
+    # Get configuration from environment
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 5001))
+    debug = os.getenv('FLASK_ENV', 'development') == 'development'
+    
+    logger.info(f"🚀 Starting PartSelect Chat Agent with Google Gemini")
+    logger.info(f"📡 Server running on http://{host}:{port}")
+    logger.info(f"🤖 Using Google Gemini 1.5 Flash (Free Tier)")
+    logger.info(f"🔧 Debug mode: {debug}")
+    
+    # Flask dev server
+    app.run(host=host, port=port, debug=debug)
