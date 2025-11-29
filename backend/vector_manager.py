@@ -1,14 +1,13 @@
 # vector_manager.py
-
 import os
 import json
-from langchain_community.embeddings import OpenAIEmbeddings  # Updated import
-from langchain_community.vectorstores import Chroma  # Updated import
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
 from langchain.docstore.document import Document
 from google_search import google_partselect_search
 import logging
 
-# Configure logging
+# logging config
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - VectorManager - %(levelname)s - %(message)s",
@@ -35,16 +34,15 @@ class LivePartSelectMemory:
         """
         self.embedding_model = OpenAIEmbeddings(
             openai_api_key=os.getenv("OPENAI_API_KEY"),
-            model="text-embedding-ada-002"  # Update if a more recent model is available
+            model="text-embedding-ada-002"
         )
 
-        # Initialize Chroma without persistence
         self.vector_store = Chroma(
             embedding_function=self.embedding_model,
             collection_name="partselect_data"
         )
 
-        logger.info("✅ LivePartSelectMemory initialized with non-persistent ChromaDB.")
+        logger.info("LivePartSelectMemory initialized with non-persistent ChromaDB.")
 
     def live_search_and_index(self, query: str, k=3):
         """
@@ -62,7 +60,7 @@ class LivePartSelectMemory:
         for snippet, link in results:
             combined_text = f"Snippet: {snippet}\nURL: {link}"
 
-            if combined_text.strip():  # Ensure valid text before embedding
+            if combined_text.strip():
                 doc = Document(page_content=combined_text, metadata={"source": link})
                 documents.append(doc)
 
@@ -71,9 +69,8 @@ class LivePartSelectMemory:
             return "No valid data found to index."
 
         try:
-            # Add documents to the vector store (Chroma handles embeddings internally)
             self.vector_store.add_documents(documents)
-            logger.info(f"✅ Live indexed {len(documents)} new items from PartSelect.")
+            logger.info(f"Live indexed {len(documents)} new items from PartSelect.")
             return f"Live indexed {len(documents)} new items from PartSelect."
         except Exception as e:
             logger.exception(f"Error during indexing: {e}")
@@ -89,7 +86,7 @@ class LivePartSelectMemory:
         if intent == 'troubleshoot':
             filter_metadata = {"type": {"$eq": "user_story"}}
             if model_number:
-                filter_metadata["model"] = {"$eq": model_number}  # Filter by model if provided
+                filter_metadata["model"] = {"$eq": model_number} 
         elif intent == 'installation':
             filter_metadata = {"type": {"$eq": "installation_guides"}}
             if model_number:
@@ -99,12 +96,11 @@ class LivePartSelectMemory:
         elif intent == 'qna':
             filter_metadata = {"type": {"$eq": "qna"}}
         else:
-            filter_metadata = {}  # No filter for general intent
+            filter_metadata = {}
 
         logger.debug(f"Performing semantic search with query: '{query}', intent: '{intent}', model: '{model_number}', filter: {filter_metadata}")
 
         try:
-            # Correctly pass the filter to the similarity_search function
             results = self.vector_store.similarity_search(query, k=top_k, filter=filter_metadata)
             logger.debug(f"Semantic search results: {results}")
 
@@ -134,11 +130,11 @@ class LivePartSelectMemory:
                         "source": metadata.get('source')
                     })
 
-            logger.info(f"✅ Semantic search returned {len(formatted_results)} results for intent '{intent}'.")
+            logger.info(f"Semantic search returned {len(formatted_results)} results for intent '{intent}'.")
             return formatted_results
 
         except Exception as e:
-            logger.exception(f"❌ Semantic search failed: {e}")
+            logger.exception(f"Semantic search failed: {e}")
             return ["Error occurred during semantic search."]
 
 
@@ -154,14 +150,11 @@ def index_scraped_data(json_str: str) -> str:
     try:
         data = json.loads(json_str)
     except json.JSONDecodeError:
-        logger.error("❌ Invalid JSON input.")
-        return "❌ Invalid JSON input."
+        logger.error("Invalid JSON input.")
+        return "Invalid JSON input."
 
     documents = []
 
-    # ============================
-    # 1. Q&A Document Tagging
-    # ============================
     qna_list = data.get("qna", [])
     if isinstance(qna_list, list):
         for pair in qna_list:
@@ -181,9 +174,6 @@ def index_scraped_data(json_str: str) -> str:
                         )
                     )
 
-    # ============================
-    # 2. Troubleshooting Document Tagging
-    # ============================
     troubleshooting_info = data.get("troubleshooting_info", {})
     if isinstance(troubleshooting_info, dict):
         # "symptoms" -> "troubleshooting_symptoms"
@@ -228,9 +218,6 @@ def index_scraped_data(json_str: str) -> str:
                 )
             )
 
-    # ============================
-    # 3. Model Compatibility Document Tagging
-    # ============================
     model_compatibility = data.get("model_compatibility", [])
     if isinstance(model_compatibility, list):
         for model in model_compatibility:
@@ -239,7 +226,6 @@ def index_scraped_data(json_str: str) -> str:
                 model_number = model.get("model_number", "").strip()
                 description = model.get("description", "").strip()
                 if brand and model_number and description:
-                    # 🏷️ Mark as "model_compatibility"
                     content = f"Brand: {brand}\nModel Number: {model_number}\nDescription: {description}"
                     documents.append(
                         Document(
@@ -251,9 +237,6 @@ def index_scraped_data(json_str: str) -> str:
                         )
                     )
 
-    # ============================
-    # 4. Installation Document Tagging
-    # ============================
     installation_info = data.get("installation_info", "").strip()
     if installation_info and installation_info != "No installation information available.":
         documents.append(
@@ -266,16 +249,14 @@ def index_scraped_data(json_str: str) -> str:
             )
         )
 
-    # ============================
-    # 5. Data Segmentation (Chunking)
-    # ============================
+
     def split_into_chunks(text, chunk_size=500):
         """
         Splits text into chunks of approximately `chunk_size` characters.
         """
         return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
-    # Handle full_description by chunking
+    # chunking
     if 'full_description' in data:
         desc_chunks = split_into_chunks(data['full_description'], chunk_size=500)
         for chunk in desc_chunks:
@@ -289,10 +270,6 @@ def index_scraped_data(json_str: str) -> str:
                 )
             )
 
-    # ============================
-    # 6. Symptom Information Tagging
-    # ============================
-    # Index common parts
     for part in data.get("common_parts", []):
         content = f"Part: {part['part_name']}\nFix Percentage: {part['fix_percentage']}%\nPrice: ${part['price']}\nDescription: {part['description']}"
         documents.append(
@@ -306,7 +283,6 @@ def index_scraped_data(json_str: str) -> str:
             )
         )
 
-        # Index user stories: combine title and instruction
         for story in part.get("user_stories", []):
             content = f"Title: {story['title']}\nInstruction: {story['instruction']}"
             documents.append(
@@ -321,17 +297,16 @@ def index_scraped_data(json_str: str) -> str:
             )
 
     if not documents:
-        logger.error("❌ No valid documents found to index.")
-        return "❌ No valid documents found to index."
+        logger.error("No valid documents found to index.")
+        return "No valid documents found to index."
 
     try:
-        # Add documents to the vector store
         live_store.vector_store.add_documents(documents)
-        logger.info(f"✅ Indexed {len(documents)} documents from scraped data.")
-        return f"✅ Indexed {len(documents)} documents from scraped data."
+        logger.info(f"Indexed {len(documents)} documents from scraped data.")
+        return f"Indexed {len(documents)} documents from scraped data."
     except Exception as e:
-        logger.exception(f"❌ Error during indexing: {e}")
-        return "❌ Failed to index scraped data."
+        logger.exception(f"Error during indexing: {e}")
+        return "Failed to index scraped data."
 
 
 def semantic_search_with_intent(query: str, intent: str, model_number: str = None, top_k: int = 3):

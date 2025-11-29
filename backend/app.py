@@ -11,6 +11,14 @@ CORS(app)
 
 sessions = {} # in memory store of session ID
 
+# logging config
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
 @app.route('/chat', methods=['POST'])
 def chat():
     """
@@ -48,13 +56,6 @@ def chat():
         error_msg = str(e)
         logger.error(f"Sending error response: {error_msg}")
         return jsonify({"response": f"Error: {error_msg}"}), 500
-
-# logging config
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
     # Flask dev server

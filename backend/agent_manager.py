@@ -10,7 +10,7 @@ from symptom_scraper import scrape_symptom_page
 from vector_manager import index_scraped_data, semantic_search_with_intent
 from langchain.schema import HumanMessage, SystemMessage
 
-# Configure logging
+# logging config
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - AgentManager - %(levelname)s - %(message)s",
