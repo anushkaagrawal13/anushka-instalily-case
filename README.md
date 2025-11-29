@@ -1,7 +1,7 @@
 # PartSelect Chat Agent - Instalily AI Case Study, Anushka Agrawal
 **AI-Powered Appliance Parts Assistant for Refrigerators & Dishwashers**
 
-## 🎯 Overview
+## Overview
 
 The PartSelect Chat Agent is an intelligent conversational assistant designed to help users with refrigerator and dishwasher parts. It provides accurate, context-aware responses for installation guidance, compatibility checks, and troubleshooting advice by combining real-time web scraping, semantic search, and GPT-4 powered natural language understanding.
 
@@ -282,43 +282,6 @@ partselect-chatbot/
     └── .env.local                     # Frontend config (not in git)
 
 ---
-
-
-## Design Decisions
-
-
-
-## 🔄 Extensibility & Scalability
-
-### Adding New Appliance Types
-
-**Step 1**: Update scope in `agent_manager.py`:
-```python
-# In AgentManager.__init__()
-self.ALLOWED_APPLIANCES = [
-    'refrigerator', 'fridge',
-    'dishwasher',
-    'washer', 'washing machine',  # NEW
-    'dryer',                        # NEW
-    'oven', 'range'                 # NEW
-]
-```
-
-**Step 2**: Add appliance-specific handlers:
-```python
-def handle_washer_query(self, query: str, session: dict) -> dict:
-    """Handle washing machine specific queries"""
-    # Implementation here
-    pass
-```
-
-**Step 3**: Update routing logic:
-```python
-if appliance_type == "washer":
-    return self.handle_washer_query(query, session)
-```
-
-### Scaling Strategies
 
 
 ## Future Enhancements
