@@ -4,7 +4,7 @@ import uuid
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
-from agent_manager import agent_manager
+from appliance_agent import appliance_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -40,8 +40,13 @@ def chat():
             return jsonify({"response": "No query provided"}), 400
 
         logger.info(f"Processing query: {user_query}")
-        response_data = agent_manager.handle_query(user_query, {})
+        response_data = appliance_agent.process_query(user_query)
         
+        if isinstance(response_data, dict) and 'response' in response_data:
+          response_text = response_data['response']
+          response_text = response_text.replace('•', '\n--')  # convert bullets to proper Markdown
+          response_data['response'] = response_text
+
         logger.info("Sending to frontend: %s", response_data)
         
         if isinstance(response_data, dict):

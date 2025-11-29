@@ -1,13 +1,21 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Package, Wrench, ShoppingCart, CheckCircle, AlertCircle, Loader2, Search } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { Send, Package, CheckCircle, ShoppingCart, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const [messages, setMessages] = useState([
     {
       type: 'bot',
-      content: 'Hello! I\'m your PartSelect assistant for Refrigerator and Dishwasher parts. I can help you with:\n\n• Installation instructions\n• Part compatibility checks\n• Troubleshooting issues\n• Product recommendations\n\nHow can I help you today?',
+      content: `Hello! I'm your PartSelect assistant for Refrigerator and Dishwasher parts. I can help you with:\n
+
+-- Installation instructions \n
+-- Part compatibility checks\n
+-- Troubleshooting issues\n
+-- Product recommendations\n
+
+How can I help you today?`,
       timestamp: new Date()
     }
   ]);
@@ -50,7 +58,7 @@ export default function Home() {
       
       const botMessage = {
         type: 'bot' as const,
-        content: data.response || 'Sorry, I couldn\'t process that request.',
+        content: data.response || "Sorry, I couldn't process that request.",
         data: data,
         timestamp: new Date()
       };
@@ -84,18 +92,7 @@ export default function Home() {
       <div key={index} className="flex justify-start mb-4">
         <div className="bg-white rounded-lg px-4 py-3 max-w-2xl shadow-sm border border-gray-200">
           <div className="prose prose-sm max-w-none">
-            {message.content.split('\n').map((line: string, i: number) => {
-              if (line.startsWith('**') && line.endsWith('**')) {
-                return <div key={i} className="font-bold text-gray-900 mt-3 mb-2">{line.replace(/\*\*/g, '')}</div>;
-              }
-              if (line.startsWith('•')) {
-                return <div key={i} className="ml-4 mb-1 text-gray-700">{line}</div>;
-              }
-              if (line.trim().match(/^\d+\./)) {
-                return <div key={i} className="ml-4 mb-2 text-gray-700">{line}</div>;
-              }
-              return line ? <div key={i} className="mb-1 text-gray-700">{line}</div> : <div key={i} className="h-2" />;
-            })}
+            <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
 
           {message.data?.partInfo && (
@@ -124,12 +121,6 @@ export default function Home() {
     );
   };
 
-  const quickActions = [
-    { icon: Wrench, text: 'Installation Help', query: 'How do I install part PS11752778?' },
-    { icon: Search, text: 'Check Compatibility', query: 'Is this part compatible with my WDT780SAEM1 model?' },
-    { icon: AlertCircle, text: 'Troubleshoot Issue', query: 'My Whirlpool ice maker is not working' },
-  ];
-
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-gray-100">
       {/* Header */}
@@ -152,27 +143,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
-      {messages.length === 1 && (
-        <div className="max-w-4xl mx-auto px-4 py-6 w-full">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {quickActions.map((action, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setInput(action.query)}
-                  className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
-                >
-                  <action.icon className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700">{action.text}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
@@ -212,11 +182,10 @@ export default function Home() {
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Specialized in Refrigerator and Dishwasher parts • Powered by Google Gemini
+            Specialized in Refrigerator and Dishwasher parts • Powered by OpenAI
           </p>
         </div>
       </div>
     </div>
   );
 }
-

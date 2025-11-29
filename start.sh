@@ -2,7 +2,7 @@
 
 # Quick start script - runs both backend and frontend
 
-echo "Starting PartSelect Chat Agent..."
+echo "🚀 Starting PartSelect Chat Agent..."
 
 # Start backend in background
 cd backend
