@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Package, Wrench, ShoppingCart, CheckCircle, AlertCircle, Loader2, Search } from 'lucide-react';
-import ChatWindow from "../components/ChatWindow";
 
 export default function Home() {
   const [messages, setMessages] = useState([
