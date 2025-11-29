@@ -153,7 +153,6 @@ echo "=========================================="
 echo ""
 echo "📚 For more information, see README.md"
 echo ""
-echo "🎥 Don't forget to record your Loom video walkthrough!"
 echo ""
 
 # Create a quick start script

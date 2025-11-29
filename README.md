@@ -170,6 +170,10 @@ The PartSelect Chat Agent is an intelligent conversational assistant designed to
 
 ### Installation
 
+For easy installation and startup on Linux/MacOS, simply run ./setup.sh and ./start.sh.
+This will create a virtual environment, install dependencies, and start the application.
+
+For manual installation:
 #### 1. Clone Repository
 
 ```bash
@@ -249,7 +253,9 @@ You should see:
 partselect-chatbot/
 │
 ├── README.md                          
-├── .gitignore                         
+├── .gitignore
+├── setup.sh
+├── start.sh                        
 │
 ├── backend/                           # Flask API
 │   ├── app.py                         # Main Flask server
