@@ -64,7 +64,7 @@ The PartSelect Chat Agent is an intelligent conversational assistant designed to
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────┐
-│           AGENT MANAGER (agent_manager.py)              │
+│           AGENT MANAGER (appliance_agent.py)              │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │         GPT-4 Intent Detection                   │   │
 │  │  • Classify: installation/compatibility/         │   │
@@ -106,7 +106,7 @@ The PartSelect Chat Agent is an intelligent conversational assistant designed to
 **File**: `backend/app.py`
 
 #### 3. Agent Manager
-**File**: `backend/agent_manager.py`
+**File**: `backend/appliance_agent.py`
 
 **Core Responsibilities**:
 - **Intent Detection**: Uses GPT-4 to classify user queries
@@ -259,7 +259,7 @@ partselect-chatbot/
 │
 ├── backend/                           # Flask API
 │   ├── app.py                         # Main Flask server
-│   ├── agent_manager.py               # AI orchestration & intent handling
+│   ├── appliance_agent.py             # AI orchestration & intent handling
 │   ├── vector_manager.py              # ChromaDB & embeddings
 │   ├── google_search.py               # Google Custom Search integration
 │   ├── partselect_scraper.py          # Product page scraper
@@ -269,7 +269,7 @@ partselect-chatbot/
 │   ├── .env                           # Your API keys (not in git)
 │   └── logs/                          # Application logs
 │       ├── flask.log
-│       ├── agent_manager.log
+│       ├── appliance_agent.log
 │       └── vector_manager.log
 │
 └── frontend/                          # Next.js application
