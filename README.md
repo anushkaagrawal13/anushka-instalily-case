@@ -5,7 +5,7 @@
 
 The PartSelect Chat Agent is an intelligent conversational assistant designed to help users with refrigerator and dishwasher parts. It provides accurate, context-aware responses for installation guidance, compatibility checks, and troubleshooting advice by combining real-time web scraping, semantic search, and GPT-4 powered natural language understanding.
 
-### Success Criteria Met
+### Criteria Met
 
 - **Scope Restriction**: Only handles refrigerator and dishwasher queries
 - **Installation Support**: Step-by-step guides with tools and safety instructions
@@ -13,11 +13,10 @@ The PartSelect Chat Agent is an intelligent conversational assistant designed to
 - **Troubleshooting**: Diagnoses issues with recommended parts and fix rates
 - **Modern UI**: Next.js interface with PartSelect branding
 - **Extensible Architecture**: Easy to add new appliance types
-- **Production Ready**: Error handling, logging, and optimization
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Framework**: Next.js 14.1 (React 18.2)
@@ -151,7 +150,7 @@ The PartSelect Chat Agent is an intelligent conversational assistant designed to
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -280,7 +279,7 @@ partselect-chatbot/
     ├── postcss.config.js              # PostCSS configuration
     ├── next.config.js                 # Next.js configuration
     └── .env.local                     # Frontend config (not in git)
-
+```
 ---
 
 
